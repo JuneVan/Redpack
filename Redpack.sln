@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redpack", "src\Redpack\Redpack.csproj", "{80964049-E843-40EC-BCD4-95C4387B5B15}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{48879CF5-4E31-436F-9130-143178F79A3D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{80964049-E843-40EC-BCD4-95C4387B5B15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80964049-E843-40EC-BCD4-95C4387B5B15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80964049-E843-40EC-BCD4-95C4387B5B15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80964049-E843-40EC-BCD4-95C4387B5B15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48879CF5-4E31-436F-9130-143178F79A3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48879CF5-4E31-436F-9130-143178F79A3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48879CF5-4E31-436F-9130-143178F79A3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48879CF5-4E31-436F-9130-143178F79A3D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {515C2B03-FBD8-4F95-ACE7-A3C2138FA643}
+	EndGlobalSection
+EndGlobal
