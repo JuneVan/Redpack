@@ -14,6 +14,8 @@ namespace Redpack
 
         private void button1_Click(object sender, EventArgs e)
         {
+            lstRedpack.Items.Clear();
+            lstProbability.Items.Clear();
             // 红包总个数
             int totalCount = (int)numTotalCount.Value;
             // 每个红包可领取个数
@@ -21,20 +23,44 @@ namespace Redpack
             // 每个红包总金额
             decimal perAmount = numPerAmount.Value;
 
-
-
+            // 取值列表
+            Dictionary<string, int> seeds = new Dictionary<string, int>();
+            // 红包数据列表
             List<decimal[]> redpacks = new List<decimal[]>();
+            // 生成红包数据
             for (int i = 0; i < totalCount; i++)
             {
                 // 生成一个随机金额红包
                 var items = RandomAmount(perCount, perAmount);
                 // 加入到红包列表
                 redpacks.Add(items);
-                
+                var middle = Middle(items).ToString("f2");
+                var value = middle.Substring(middle.Length - 1);
+                lstRedpack.Items.Add($"序号{i}:金额分别为{ string.Join(',', items)} 中位数为{middle} 取值{value}");
+
+                // 存储取值
+                if (seeds.ContainsKey(value))
+                    seeds[value] += 1;
+                else
+                    seeds.Add(value, 1);
+            }
+            Dictionary<string, decimal> probability = new Dictionary<string, decimal>();
+            // 计算概率
+            foreach (var key in seeds.Keys)
+            {
+                var probabilityValue = seeds[key] * 1.0m / totalCount;
+                probability.Add(key, probabilityValue); 
+            }
+            // 排序后展示
+            var orderByDictionary = probability.OrderByDescending(o => o.Value);
+            foreach (var item in orderByDictionary)
+            {
+                lstProbability.Items.Add($"值{item.Key}出现的概率为{item.Value}");
             }
 
+
         }
-        
+
 
 
         // 随机单个红包金额
@@ -65,30 +91,9 @@ namespace Redpack
             items[count - 1] = amount - used;
             return items;
         }
-        // 最大值计算
-        private decimal Max(List<decimal> items)
-        {
-            decimal max = 0m;
-            foreach (var item in items)
-            {
-                if (item > max)
-                    max = item;
-            }
-            return max;
-        }
-        // 最小值
-        private decimal Min(List<decimal> items)
-        {
-            decimal min = 0m;
-            foreach (var item in items)
-            {
-                if (item < min)
-                    min = item;
-            }
-            return min;
-        }
+
         //中位数计算
-        private static decimal Middle(List<decimal> items)
+        private decimal Middle(decimal[] items)
         {
             var orderByItems = items.OrderBy(o => o).ToArray();
             // 只支持奇数
