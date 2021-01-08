@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Redpack.Properties;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -12,10 +14,10 @@ namespace Redpack
             InitializeComponent();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnStart_Click(object sender, EventArgs e)
         {
             lstRedpack.Items.Clear();
-            lstProbability.Items.Clear();
+            panel.Controls.Clear();
             // 红包总个数
             int totalCount = (int)numTotalCount.Value;
             // 每个红包可领取个数
@@ -36,7 +38,7 @@ namespace Redpack
                 redpacks.Add(items);
                 var middle = Middle(items).ToString("f2");
                 var value = middle.Substring(middle.Length - 1);
-                lstRedpack.Items.Add($"序号{i}:金额分别为{ string.Join(',', items)} 中位数为{middle} 取值{value}");
+                lstRedpack.Items.Add($"序号{i}:金额为{ string.Join(',', items)} 中位数为{middle} 取值{value}");
 
                 // 存储取值
                 if (seeds.ContainsKey(value))
@@ -49,16 +51,35 @@ namespace Redpack
             foreach (var key in seeds.Keys)
             {
                 var probabilityValue = seeds[key] * 1.0m / totalCount;
-                probability.Add(key, probabilityValue); 
+                probability.Add(key, probabilityValue);
             }
             // 排序后展示
             var orderByDictionary = probability.OrderByDescending(o => o.Value);
+            Point[] points = new Point[] {
+                new Point(15 ,10),
+                new Point(125, 10),
+                new Point(235, 10),
+                new Point(345, 10),
+                new Point(455, 10),
+                new Point(15 ,110),
+                new Point(125,110),
+                new Point(235, 110),
+                new Point(345, 110),
+                new Point(455, 110)
+            };
+            int index = 0;
             foreach (var item in orderByDictionary)
             {
-                lstProbability.Items.Add($"值{item.Key}出现的概率为{item.Value}");
+                Card card = new Card()
+                {
+                    Title = $"{item.Value * 100:f2}%",
+                    Num = item.Key,
+                    Left = points[index].X,
+                    Top = points[index].Y
+                };
+                panel.Controls.Add(card);
+                index++;
             }
-
-
         }
 
 
@@ -101,6 +122,35 @@ namespace Redpack
                 throw new ArgumentException("只支持奇数个数的数组。");
             int index = orderByItems.Length / 2;
             return orderByItems[index];
+        }
+
+        private void Main_Load(object sender, EventArgs e)
+        {
+            // 测试代码
+            //Point[] points = new Point[] {
+            //    new Point(15 ,10),
+            //    new Point(125, 10),
+            //    new Point(235, 10),
+            //    new Point(345, 10),
+            //    new Point(455, 10),
+            //    new Point(15 ,110),
+            //    new Point(125,110),
+            //    new Point(235, 110),
+            //    new Point(345, 110),
+            //    new Point(455, 110)
+            //};
+            //for (int i = 0; i < points.Length; i++)
+            //{
+            //    Card card = new Card()
+            //    {
+            //        Title = "1%",
+            //        Num = $"{i}",
+            //        Left = points[i].X,
+            //        Top = points[i].Y
+            //    };
+            //    panel.Controls.Add(card);
+            //}
+
         }
     }
 }
