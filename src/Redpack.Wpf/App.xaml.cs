@@ -1,11 +1,13 @@
 ﻿using System;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
 namespace Redpack.Wpf
 {
+    /// <summary>
+    /// App.xaml 的交互逻辑
+    /// </summary>
     public partial class App : Application
     {
         public App()
@@ -33,33 +35,22 @@ namespace Redpack.Wpf
         void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             e.Handled = true; //把 Handled 属性设为true，表示此异常已处理，程序可以继续运行，不会强制退出      
-            MessageBox.Show("UI线程异常:" + e.Exception.Message);
+            MessageBox.Show(e.Exception.Message);
 
         }
 
         void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            StringBuilder  stringBuilder = new StringBuilder();
-            if (e.IsTerminating)
-            {
-                stringBuilder.Append("非UI线程发生致命错误");
-            }
-            stringBuilder.Append("非UI线程异常：");
             if (e.ExceptionObject is Exception)
             {
-                stringBuilder.Append(((Exception)e.ExceptionObject).Message);
-            }
-            else
-            {
-                stringBuilder.Append(e.ExceptionObject);
-            }
-            MessageBox.Show(stringBuilder.ToString());
+                MessageBox.Show(((Exception)e.ExceptionObject).Message);
+            };
         }
 
         void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
             //task线程内未处理捕获
-            MessageBox.Show("Task线程异常：" + e.Exception.Message);
+            MessageBox.Show(e.Exception.Message);
             e.SetObserved();//设置该异常已察觉（这样处理后就不会引起程序崩溃）
         }
     }

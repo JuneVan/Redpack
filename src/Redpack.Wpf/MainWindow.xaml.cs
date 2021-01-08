@@ -1,8 +1,11 @@
-﻿using System;
+﻿using MaterialDesignThemes.Wpf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace Redpack.Wpf
 {
@@ -19,7 +22,7 @@ namespace Redpack.Wpf
             {
                 int _totalCount;
                 if (!int.TryParse(TxtTotalCount.Text, out _totalCount))
-                    MessageBox.Show("红包总个数格式不正确！");
+                    throw new ArgumentException("红包总个数格式不正确！");
                 return _totalCount;
             }
         }
@@ -30,7 +33,7 @@ namespace Redpack.Wpf
             {
                 int _perCount;
                 if (!int.TryParse(TxtPerCount.Text, out _perCount))
-                    MessageBox.Show("每个红包可领取个数格式不正确！");
+                    throw new ArgumentException("每个红包可领取个数格式不正确！");
                 return _perCount;
             }
         }
@@ -41,9 +44,15 @@ namespace Redpack.Wpf
             {
                 decimal _perAmount;
                 if (!decimal.TryParse(TxtPerAmount.Text, out _perAmount))
-                    MessageBox.Show("每个红包总金额格式不正确！");
+                    throw new ArgumentException("每个红包总金额格式不正确！");
                 return _perAmount;
             }
+        }
+
+        private void Validation()
+        {
+            if (TotalCount > 1000 || TotalCount < 100)
+                throw new ArgumentException("红包总个数可设置范围[100 - 1000]！");
         }
         // 随机方式
         public enum RandomType
@@ -64,14 +73,20 @@ namespace Redpack.Wpf
             }
         }
 
+        private void ClearDisplay()
+        {
+            LstRedpack.Items.Clear();
+            probability.Clear();
+            GridDashboard.Children.Clear();
+            LstRedpack.Visibility = Visibility.Hidden;
+            TxtRunning.Visibility = Visibility.Visible;
+        }
         Dictionary<string, decimal> probability = new Dictionary<string, decimal>();
         /// <summary>
         /// 红包生成及概率计算
         /// </summary>
         private void Calculate()
         {
-            LstRedpack.Items.Clear();
-            probability.Clear();
             // 取值列表
             Dictionary<string, int> seeds = new Dictionary<string, int>();
             // 红包数据列表
@@ -91,7 +106,7 @@ namespace Redpack.Wpf
                     case RandomType.Middle:
                         var middle = Middle(items).ToString("f2");
                         value = middle.Substring(middle.Length - 1);
-                        LstRedpack.Items.Add($"序号{i}:金额为{ string.Join(',', items)} 中位数为{middle} 取值为{value}");
+                        LstRedpack.Items.Add($"序号{i}:金额为{ string.Join(",", items)}");
                         break;
                 }
 
@@ -115,6 +130,8 @@ namespace Redpack.Wpf
         {
             Panel.Visibility = Visibility.Hidden;
             Panel.Height = 0;
+            LstRedpack.Visibility = Visibility.Visible;
+            TxtRunning.Visibility = Visibility.Hidden;
             // 排序后展示
             var orderByDictionary = probability.OrderByDescending(o => o.Value);
             int[,] points = new int[10, 2]
@@ -145,10 +162,11 @@ namespace Redpack.Wpf
             }
         }
         // 随机单个红包金额
+        Random random = new Random();
         private decimal[] RandomAmount(int count, decimal amount)
         {
             decimal[] items = new decimal[count];
-            Random random = new Random();
+
             decimal used = 0;//已随机总额 
             // 循环随机 count - 1 
             for (int i = 0; i < count - 1; i++)
@@ -183,16 +201,108 @@ namespace Redpack.Wpf
             int index = orderByItems.Length / 2;
             return orderByItems[index];
         }
+
+        // 随机动画
+        private void Animation(Action nextCallback)
+        {
+            Panel.Visibility = Visibility.Hidden;
+            Panel.Height = 0;
+            int[,] points = new int[10, 2]
+            {
+                {0,0 },
+                {0,1 },
+                {0,2 },
+                {0,3 },
+                {0,4 },
+                {1,0 },
+                {1,1 },
+                {1,2 },
+                {1,3 },
+                {1,4 }
+            };
+            int[] items = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            Random random = new Random();
+            // 定时器
+            var now = DateTime.Now;
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Interval = new TimeSpan(0, 0, 0, 0, 200);
+            timer.Tick += (sender, e) =>
+            {
+                if (now >= DateTime.Now.AddSeconds(-5))
+                {
+                    //打乱数组
+                    items = Shuffle(items);
+                    int index = 0;
+                    foreach (var item in items)
+                    {
+                        Card card = new Card()
+                        {
+                            Title = $"{random.Next(0, 15) / 100m * 100m:f2}%",
+                            Num = item.ToString()
+                        };
+                        GridDashboard.Children.Add(card);
+                        card.SetValue(Grid.RowProperty, points[index, 0]);
+                        card.SetValue(Grid.ColumnProperty, points[index, 1]);
+                        index++;
+                    }
+                }
+                else
+                {
+                    timer.Stop();
+                    Thread.Sleep(100);
+                    nextCallback();
+                }
+
+            };
+            timer.Start();
+
+        }
+        //打乱数组
+        public int[] Shuffle(int[] collection)
+        {
+            for (int i = collection.Length - 1; i > 0; i--)
+            {
+                Random rand = new Random();
+                int p = rand.Next(i);
+                var temp = collection[p];
+                collection[p] = collection[i];
+                collection[i] = temp;
+            }
+            return collection;
+        }
+        // 下次可运行时间
+        protected DateTime NextStartTime { get; set; }
         private void BtnStart_Click(object sender, RoutedEventArgs e)
         {
-            Calculate();
-            Display();
-        }
-         
 
-        private void LstRedpack_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            LabTip.Content = LstRedpack.SelectedValue;
+            // 5分钟之后可以执行一次
+            if (NextStartTime < DateTime.Now)
+            {
+                Validation();
+                ClearDisplay();
+                Animation(() =>
+                {
+                    Calculate();
+                    Display();
+                });
+
+                NextStartTime = DateTime.Now.AddMinutes(3);
+
+                /*BtnStart.IsEnabled = false;
+                // 设置定时器解锁按钮
+                DispatcherTimer btnTimer = new DispatcherTimer();
+                btnTimer.Interval = new TimeSpan(0, 0, 0, 0, 1);
+                btnTimer.Tick += (s, ee) =>
+                {
+                    if (NextStartTime < DateTime.Now)
+                        BtnStart.IsEnabled = true;
+                };
+                btnTimer.Start();*/
+            }
+            else
+            {
+                MessageBox.Show($"下次可执行时间：{NextStartTime}");
+            }
         }
     }
 }
