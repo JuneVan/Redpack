@@ -1,0 +1,61 @@
+﻿<Window x:Class="Redpack.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        mc:Ignorable="d"
+         Title="红包计算器" 
+        Height="450" Width="800" WindowStartupLocation="CenterScreen" Icon="/Assets/icon.png"  >
+    <DockPanel Margin="5">
+
+        <Border DockPanel.Dock="Top" BorderThickness="0,0,0,1" BorderBrush="#f3f3f3" Padding="0,0,0,5">
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Content="红包总个数："  HorizontalAlignment="Right" Margin="5"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="1000" x:Name="TxtTotalCount" Margin="5"/>
+                <Label Grid.Row="0" Grid.Column="2" Content="每个红包金额：" HorizontalAlignment="Right" Margin="5"/>
+                <TextBox Grid.Row="0" Grid.Column="3" Text="1.0" x:Name="TxtPerAmount" Margin="5" IsReadOnly="True"/>
+                <Label Grid.Row="0" Grid.Column="4" Content="每个红包可领取个数：" HorizontalAlignment="Right" Margin="5" />
+                <TextBox Grid.Row="0" Grid.Column="5" Text="3" x:Name="TxtPerCount"  Margin="5"  IsReadOnly="True"/>
+                <Label Grid.Row="1" Grid.Column="0" Content="随机方式：" HorizontalAlignment="Right" Margin="5"/>
+                <RadioButton Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4" IsChecked="True" Content="中位数(可领取个数必须为奇数)" Background="#dc3545" x:Name="RbRandomType" Tag="0"  Margin="5"/>
+                <Button  Grid.Row="1" Grid.Column="5" Content="开始" Click="BtnStart_Click"  Margin="5" Background="#dc3545" BorderBrush="#dc3545" x:Name="BtnStart" Cursor="Hand"/>
+            </Grid>
+        </Border>
+        <DockPanel DockPanel.Dock="Top" Height="350" x:Name="Panel">
+            <Image DockPanel.Dock="Top" Source="/Assets/icon.png"  HorizontalAlignment="Center" Height="200" />
+            <Label DockPanel.Dock="Bottom"  Content="红包云计算中心" FontSize="20"  HorizontalAlignment="Center" Foreground="#7d7777"/>
+        </DockPanel>
+        <DockPanel DockPanel.Dock="Left"  Width="200">
+            <ListBox DockPanel.Dock="Top" x:Name="LstRedpack" Visibility="Hidden"  />
+            <TextBlock x:Name="TxtRunning" DockPanel.Dock="Top"   Foreground="#7d7777" VerticalAlignment="Center" HorizontalAlignment="Center"  FontSize="30" Text="运&#x0a;算&#x0a;中"></TextBlock>
+        </DockPanel>
+
+
+        <Grid DockPanel.Dock="Bottom"  x:Name="GridDashboard" Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+        </Grid>
+
+    </DockPanel>
+</Window>
